@@ -8,6 +8,7 @@ import SwiftUI
 
 struct AddItemView: View {
     let itemStore: Items
+    @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var date = Date()
     @State private var time = ""
@@ -37,8 +38,10 @@ struct AddItemView: View {
             
             Button("Create Item"){
                 itemStore.items.append(Item(name: name, date: date, time: time))
+                dismiss()
             }
         }
         .navigationTitle("Add Item")
     }
 }
+
