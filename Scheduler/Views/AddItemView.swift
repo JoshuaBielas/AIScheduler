@@ -5,41 +5,33 @@
 //  Created by Joshua Bielas on 2/3/26.
 //
 import SwiftUI
+import SwiftData
 
 struct AddItemView: View {
-    let itemStore: Items
+    @Query var items: [Item]
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var dbContext
     @State private var name = ""
     @State private var date = Date()
-    @State private var time = ""
+    @State private var time = 0
 
     var body: some View {
         VStack {
-            Text("Enter the Name of the Item")
-                .bold()
-                .font(.title2)
-            TextField("Name", text: $name)
-                .textFieldStyle(.roundedBorder)
-                .padding(50)
-            Text("Select the Due Date for the Item")
-                .bold()
-                .font(.title2)
-            DatePicker(
-                "Due Date",
-                selection: $date
-            ).padding(50)
-            Text("Enter the Expected Time for the Item")
-                .bold()
-                .font(.title2)
-            TextField("Time", text: $time)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.numbersAndPunctuation)
-                .padding(50)
-            
-            Button("Create Item"){
-                itemStore.items.append(Item(name: name, date: date, time: time))
-                dismiss()
+            Form {
+                Section() {TextField("Name", text: $name)}
+                Section() {DatePicker("Due Date", selection: $date)}
+                Section() {TextField("Time", value: $time, format: .number)
+                    .keyboardType(.numberPad)}
             }
+            Button("Create Item"){
+                dbContext.insert(Item(name: name, date: date, time: time))
+                do {
+                    try dbContext.save()
+                } catch {
+                    print("insert failed", error)
+                }
+                dismiss()
+            }.buttonStyle(.bordered).controlSize(.large)
         }
         .navigationTitle("Add Item")
     }

@@ -6,46 +6,49 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-//    @State private var showForm = false
-    @State private var testItems = Items()
+//    @State private var testItems = Items()
     @State private var tempText: String = ""
-    // I NEED TO BUILD THE PROMPT SOMEHOW PROBABLY WITHIN A FUNCTION
-    // DATE SHOULD USE A DIFFERENT TIME ZONE
 //    @State private var prompt: String = "Create a schedule for these items: Math Homework (Takes two hours and is due 2/19),History Studying (Takes one hour and is due 2/20). It is currently \(Date()). Don't give any description. Just give the schedule."
     @State private var errorMessage: String?
+    @Query var items: [Item]
+    @Environment(\.modelContext) private var dbContext
 
     var body: some View {
         NavigationStack {
             VStack {
-                Spacer()
-                ItemTable(items: $testItems.items)
+                ItemTable(items: items)
                     .frame(maxHeight: 500)
                 Spacer()
                 Text(tempText)
                 Spacer()
                 ZStack {
                     Button("Schedule Items") {
-                        if(testItems.items.isEmpty) {
-                            errorMessage = "Please add items before scheduling."
-                            tempText = errorMessage ?? ""
-                            return
-                        }
-                        Task {
-                            do {
-                                let prompt: String = buildPrompt(for: testItems.items)
-                                let output = try await LLMCommunicator().getSchedule(prompt: prompt)
-                                self.tempText = output
-                                self.errorMessage = nil
-                            } catch {
-                                self.errorMessage = error.localizedDescription
-                            }
-                        }
-                    }.buttonStyle(.bordered).controlSize(.large)
+                        tempText = "\(items.count)"
+//                        if(items.isEmpty) {
+//                            errorMessage = "Please add items before scheduling."
+//                            tempText = errorMessage ?? ""
+//                            return
+//                        }
+//                        Task {
+//                            do {
+//                                let prompt: String = buildPrompt(for: items)
+//                                let output = try await LLMCommunicator().getSchedule(prompt: prompt)
+//                                self.tempText = output
+//                                self.errorMessage = nil
+//                            } catch {
+//                                self.errorMessage = error.localizedDescription
+//                            }
+//                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .foregroundStyle(Color.white)
                     HStack {
                         NavigationLink {
-                            AddItemView(itemStore: testItems)
+                            AddItemView()
                         } label: {
                             Image(systemName: "plus")
                                 .font(.system(size: 24, weight: .bold))
@@ -55,11 +58,13 @@ struct ContentView: View {
                         .buttonBorderShape(.circle)
                         .controlSize(.large)
                         .padding(.leading, 16)
+                        
                         Spacer()
+                        
                         NavigationLink {
-                            CalendarView(itemStore: testItems)
+                            ScheduleView()
                         } label: {
-                            Image(systemName: "calendar")
+                            Image(systemName: "list.clipboard")
                                 .font(.system(size: 24, weight: .bold))
                                 .frame(width: 36, height: 36)
                         }
@@ -70,11 +75,24 @@ struct ContentView: View {
                     }
                 }
             }
-//            .navigationDestination(isPresented: $showForm) {
-//                AddItemView(itemStore: testItems)
-//            }
             .navigationTitle("Home")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        CalendarView()
+                    } label: {
+                        Image(systemName: "calendar")
+                    }
+                }
+            }
         }
+//        .onAppear {
+//            let container = dbContext.container
+//            for config in container.configurations {
+//                let url = config.url
+//                print("SwiftData store URL:", url.path)
+//            }
+//        }
     }
 }
 

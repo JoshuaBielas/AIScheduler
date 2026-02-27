@@ -6,5 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
+struct ScheduleView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var dbContext
+    @Query var items: [Item]
 
+    var body: some View {
+        VStack {
+            ItemTable(items: items)
+        }
+        .navigationTitle("Schedule")
+    }
+}
