@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ItemRow: View {
     let item: Item
+    @Environment(\.modelContext) private var dbContext
 
     var body: some View {
         HStack {
@@ -16,7 +18,7 @@ struct ItemRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(item.date, style: .date)
                 .frame(width: 120, alignment: .leading)
-            Text(item.time)
+            Text("\(item.time)")
                 .frame(width: 120, alignment: .leading)
         }
         .font(.body.monospacedDigit())
@@ -24,7 +26,8 @@ struct ItemRow: View {
 }
 
 struct ItemTable: View {
-    @Binding var items: [Item]
+    let items: [Item]
+    @Environment(\.modelContext) private var dbContext
 
     var body: some View {
         VStack(spacing: 0) {
@@ -49,7 +52,15 @@ struct ItemTable: View {
                     ItemRow(item: item)
                 }
                 .onDelete { indexSet in
-                    items.remove(atOffsets: indexSet)
+                    for index in indexSet {
+                        dbContext.delete(items[index])
+                    }
+                    do {
+                    try dbContext.save()
+                        print("delete succeeded")
+                    } catch {
+                        print("Delete save failed:", error)
+                    }
                 }
             }.scrollContentBackground(.hidden).background(Color(.clear))
         }
