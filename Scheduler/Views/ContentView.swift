@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-//    @State private var testItems = Items()
     @State private var tempText: String = ""
-//    @State private var prompt: String = "Create a schedule for these items: Math Homework (Takes two hours and is due 2/19),History Studying (Takes one hour and is due 2/20). It is currently \(Date()). Don't give any description. Just give the schedule."
     @State private var errorMessage: String?
     @Query var items: [Item]
     @Environment(\.modelContext) private var dbContext
@@ -26,26 +24,52 @@ struct ContentView: View {
                 Spacer()
                 ZStack {
                     Button("Schedule Items") {
-                        tempText = "\(items.count)"
-//                        if(items.isEmpty) {
-//                            errorMessage = "Please add items before scheduling."
-//                            tempText = errorMessage ?? ""
-//                            return
-//                        }
-//                        Task {
-//                            do {
-//                                let prompt: String = buildPrompt(for: items)
-//                                let output = try await LLMCommunicator().getSchedule(prompt: prompt)
+                        if(items.isEmpty) {
+                            errorMessage = "Please add items before scheduling."
+                            tempText = errorMessage ?? ""
+                            return
+                        }
+                        Task {
+                            do {
+                                let prompt: String = buildPrompt(for: items)
+                                let output = try await LLMCommunicator().getSchedule(prompt: prompt)
+                                
+                                try ScheduledItem.createFromLLMResponse(output, in: dbContext)
+                                
 //                                self.tempText = output
-//                                self.errorMessage = nil
-//                            } catch {
-//                                self.errorMessage = error.localizedDescription
-//                            }
-//                        }
+                                self.errorMessage = nil
+                            } catch {
+                                self.errorMessage = error.localizedDescription
+                                print("Failed:", error)
+                            }
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .foregroundStyle(Color.white)
+//                    Button("Schedule Items") {
+//                        Task {
+//                            do {
+//                                if items.isEmpty {
+//                                    tempText = "No items to schedule."
+//                                    return
+//                                }
+//                                let prompt = buildPrompt(for: items)
+//                                let output = try await LLMCommunicator().getSchedule(prompt: prompt)
+//
+//                                print("LLM output:\n\(output)")
+//                                tempText = "Got LLM output (\(output.count) chars), importing..."
+//
+//                                try ScheduledItem.createFromLLMResponse(output, in: dbContext)
+//
+//                                tempText = "Imported scheduled items successfully."
+//                            } catch {
+//                                tempText = "Scheduling failed: \(error.localizedDescription)"
+//                                print("Scheduling failed:", error)
+//                            }
+//                        }
+//                    }
+
                     HStack {
                         NavigationLink {
                             AddItemView()

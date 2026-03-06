@@ -8,18 +8,6 @@
 import Foundation
 import SwiftData
 
-//struct Item: Identifiable {
-//    let id = UUID()
-//    var name: String
-//    var date: Date
-//    var time: String
-//}
-
-//@Observable
-//final class Items {
-//    var items: [Item] = []
-//}
-
 @Model
 class Item: Identifiable {
     var id: UUID = UUID()

@@ -11,11 +11,11 @@ import SwiftData
 struct ScheduleView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var dbContext
-    @Query var items: [Item]
+    @Query var scheduledItems: [ScheduledItem]
 
     var body: some View {
         VStack {
-            ItemTable(items: items)
+            ScheduledTable(scheduledItems: scheduledItems)
         }
         .navigationTitle("Schedule")
     }
