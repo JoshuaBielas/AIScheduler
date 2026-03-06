@@ -32,7 +32,6 @@ func buildPrompt(for tasks: [Item]) -> String {
     Date: ISO 8601 datetime
     Time: String in number of hours
     Return ONLY valid JSON in this format:
-
     [
       {
         "name": "task name exactly as provided",
