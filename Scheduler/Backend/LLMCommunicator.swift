@@ -22,8 +22,17 @@ struct LLMRequest: Codable {
 }
 
 class LLMCommunicator {
+    private let model: String = "llama3"
+//    private let model: String = "gemma3:4b"
+//    private let model: String = "deepseek-r1:latest"
+//    private let model: String = "qwen3:latest"
+//    private let model: String = "llama3.2"
+//    private let model: String = "aya:latest"
+//    private let model: String = "phi4-mini:latest"
+    
     func getSchedule(prompt: String) async throws -> String {
-        guard let url = URL(string: "http://localhost:11434/api/generate") else {
+        // COULD TRY WITH CS AI SERVER
+        guard let url = URL(string: "http://127.0.0.1:11434/api/generate") else {
             throw URLError(.badURL)
         }
         
@@ -31,12 +40,26 @@ class LLMCommunicator {
                 request.httpMethod = "POST"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 
-        let body = LLMRequest(model: "llama3", prompt: prompt, stream: false)
+        let body = LLMRequest(model: model, prompt: prompt, stream: false)
+        
+        print("sending request ...")
         
         request.httpBody = try JSONEncoder().encode(body)
         
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
                 
+        if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            throw NSError(
+                domain: "LLMCommunicator",
+                code: http.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: "Non-200 response: \(http.statusCode). Body: \(bodyText)"]
+            )
+        }
+        
+        print("got the response. now trying to decode")
+        let rawText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+        print("raw output: ", rawText)
         let decodedResponse = try JSONDecoder().decode(LLMResponse.self, from: data)
         
         return decodedResponse.response
