@@ -22,8 +22,8 @@ struct LLMRequest: Codable {
 }
 
 class LLMCommunicator {
-//    private let model: String = "llama3"
-    private let model: String = "gemma3:4b"
+    private let model: String = "llama3"
+//    private let model: String = "gemma3:4b"
 //    private let model: String = "deepseek-r1:latest"
 //    private let model: String = "qwen3:latest"
 //    private let model: String = "llama3.2"
@@ -31,6 +31,7 @@ class LLMCommunicator {
 //    private let model: String = "phi4-mini:latest"
     
     func getSchedule(prompt: String) async throws -> String {
+        // COULD TRY WITH CS AI SERVER
         guard let url = URL(string: "http://127.0.0.1:11434/api/generate") else {
             throw URLError(.badURL)
         }
