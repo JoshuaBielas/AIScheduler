@@ -21,3 +21,10 @@ class Item: Identifiable {
         self.time = time
     }
 }
+
+
+struct ItemDTO: Codable {
+    let name: String
+    let date: Date
+    let time: Int
+}

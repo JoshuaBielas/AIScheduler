@@ -24,9 +24,10 @@ struct LLMRequest: Codable {
 class LLMCommunicator {
     private let model: String = "llama3"
 //    private let model: String = "gemma3:4b"
+//    private let model: String = "gemma3:latest"
 //    private let model: String = "deepseek-r1:latest"
 //    private let model: String = "qwen3:latest"
-//    private let model: String = "llama3.2"
+//    private let model: String = "llama3.2:latest"
 //    private let model: String = "aya:latest"
 //    private let model: String = "phi4-mini:latest"
     
